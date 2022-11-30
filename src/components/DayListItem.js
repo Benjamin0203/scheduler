@@ -20,8 +20,8 @@ const formatSpots = function(spots) {
 };
   
   return (
-    <li onClick={() => props.setDay(props.name)} className={dayClass}>
-      <h2 className="text--regular">Day Name</h2> 
+    <li onClick={() => props.setDay(props.name)} className={dayClass} selected={props.selected}>
+      <h2 className="text--regular">{props.name}</h2> 
       <h3 className="text--light">{formatSpots(props.spots)}</h3>
     </li>
   );
