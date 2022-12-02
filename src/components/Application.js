@@ -8,7 +8,7 @@ import DayList from "./DayList";
 import Appointment from "components/Appointment";
 import { getAppointmentsForDay } from "helpers/selectors";
 
-
+//Application component
 export default function Application(props) {
   
   const [state, setState] = useState({
@@ -17,24 +17,28 @@ export default function Application(props) {
     appointments: {}
   })
 
+  //Get the appointment data for the selected day
   const dailyAppointments = getAppointmentsForDay(state, state.day);
+
   /*
   We don't want to make the request every time the component renders. Instead, we need to remove the dependency. We do that by passing a function to setState.
   */
   const setDay = day => setState(prev => ({ ...prev, day }));
   // const setDays = days => setState(prev => ({ ...prev, days }));
   
-console.log(state.day);
+  //test
+  console.log(state.interviewers);
 
   useEffect(() => {
     const promise1 = axios.get("/api/days");
     const promise2 = axios.get("/api/appointments");
-    const promises = [promise1, promise2]
+    const promise3 = axios.get("/api/interviewers")
+    const promises = [promise1, promise2, promise3]
     Promise.all(
       promises
     ).then(
       (all) => {
-        setState(prev => ({...prev, days: all[0].data, appointments: all[1].data}))
+        setState(prev => ({...prev, days: all[0].data, appointments: all[1].data, interviewers: all[2].data}))
       }
     )    
   }, []);
