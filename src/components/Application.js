@@ -68,8 +68,27 @@ const appointments = {
 
 
 export default function Application(props) {
-  const [day, setDay] = useState("Monday");
-  const [days, setDays] = useState([]); 
+  // const [day, setDay] = useState("Monday");
+  // const [days, setDays] = useState([]); 
+
+  const [state, setState] = useState({
+    day: "Monday",
+    days: [],
+    appointments: {}
+  })
+
+  const setDay = day => setState(prev => ({ ...prev, day }));
+  /*
+  We don't want to make the request every time the component renders. Instead, we need to remove the dependency. We do that by passing a function to setState.
+  more reactive
+  .slice() maintaint the same memory
+  .splice()
+  callback -> not using the same memeory, refresh it with new memory
+  without cleaniing the table. cleaning the old table and put the original food back
+  */
+  const setDays = days => setState(prev => ({ ...prev, days }));
+  
+console.log(state.day);
 
   useEffect(() => {
     axios.get("/api/days")
@@ -89,8 +108,8 @@ export default function Application(props) {
 />
 <hr className="sidebar__separator sidebar--centered" />
 <nav className="sidebar__menu"><DayList
-  days={days}
-  value={day}
+  days={state.days}
+  value={state.day}
   onChange={setDay}
 /></nav>
 <img
