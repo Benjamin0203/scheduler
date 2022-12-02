@@ -6,97 +6,44 @@ import "components/Application.scss";
 
 import DayList from "./DayList";
 import Appointment from "components/Appointment";
-
-
-//Mock Data
-const appointments = {
-  "1": {
-    id: 1,
-    time: "12pm",
-  },
-  "2": {
-    id: 2,
-    time: "1pm",
-    interview: {
-      student: "Lydia Miller-Jones",
-      interviewer:{
-        id: 3,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  "3": {
-    id: 3,
-    time: "2pm",
-  },
-  "4": {
-    id: 4,
-    time: "3pm",
-    interview: {
-      student: "Archie Andrews",
-      interviewer:{
-        id: 4,
-        name: "Cohana Roy",
-        avatar: "https://i.imgur.com/FK8V841.jpg",
-      }
-    }
-  },
-  "5": {
-    id: 5,
-    time: "4pm",
-  }
-};
-
-// const days = [
-//   {
-//     id: 1,
-//     name: "Monday",
-//     spots: 2,
-//   },
-//   {
-//     id: 2,
-//     name: "Tuesday",
-//     spots: 5,
-//   },
-//   {
-//     id: 3,
-//     name: "Wednesday",
-//     spots: 0,
-//   },
-// ];
+import { getAppointmentsForDay } from "helpers/selectors";
 
 
 export default function Application(props) {
-  // const [day, setDay] = useState("Monday");
-  // const [days, setDays] = useState([]); 
-
+  
   const [state, setState] = useState({
     day: "Monday",
     days: [],
     appointments: {}
   })
 
-  const setDay = day => setState(prev => ({ ...prev, day }));
+  const dailyAppointments = getAppointmentsForDay(state, state.day);
   /*
   We don't want to make the request every time the component renders. Instead, we need to remove the dependency. We do that by passing a function to setState.
-  more reactive
-  .slice() maintaint the same memory
-  .splice()
-  callback -> not using the same memeory, refresh it with new memory
-  without cleaniing the table. cleaning the old table and put the original food back
   */
-  const setDays = days => setState(prev => ({ ...prev, days }));
+  const setDay = day => setState(prev => ({ ...prev, day }));
+  // const setDays = days => setState(prev => ({ ...prev, days }));
   
 console.log(state.day);
 
   useEffect(() => {
-    axios.get("/api/days")
-    .then(response => {
-      console.log(response);
-      setDays([...response.data])
-    })
+    const promise1 = axios.get("/api/days");
+    const promise2 = axios.get("/api/appointments");
+    const promises = [promise1, promise2]
+    Promise.all(
+      promises
+    ).then(
+      (all) => {
+        setState(prev => ({...prev, days: all[0].data, appointments: all[1].data}))
+      }
+    )    
   }, []);
+
+  // axios.get("/api/days")
+  // .then(response => {
+  //   console.log(response);
+  //   // setDays([...response.data])
+  // })
 
   return (
     <main className="layout">
@@ -119,7 +66,7 @@ console.log(state.day);
 />
       </section>
       <section className="schedule">
-        {Object.values(appointments).map((appointment) => {
+        {dailyAppointments.map((appointment) => {
           return <Appointment key={appointment.id} {...appointment} />;
         })}
       </section>
