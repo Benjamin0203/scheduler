@@ -6,7 +6,7 @@ import "components/Application.scss";
 
 import DayList from "./DayList";
 import Appointment from "components/Appointment";
-import { getAppointmentsForDay } from "helpers/selectors";
+import { getAppointmentsForDay, getInterview } from "helpers/selectors";
 
 //Application component
 export default function Application(props) {
@@ -19,6 +19,7 @@ export default function Application(props) {
 
   //Get the appointment data for the selected day
   const dailyAppointments = getAppointmentsForDay(state, state.day);
+
 
   /*
   We don't want to make the request every time the component renders. Instead, we need to remove the dependency. We do that by passing a function to setState.
@@ -71,7 +72,19 @@ export default function Application(props) {
       </section>
       <section className="schedule">
         {dailyAppointments.map((appointment) => {
-          return <Appointment key={appointment.id} {...appointment} />;
+          //refactor the codes to reduce the duplication of data
+            const interview = getInterview(state, appointment.interview);
+            return (
+              <Appointment
+                key={appointment.id}
+                id={appointment.id}
+                time={appointment.time}
+                interview={interview}
+              />
+            );
+            //----------------------------
+            //old code:
+          // return <Appointment key={appointment.id} {...appointment} />;
         })}
       </section>
     </main>
