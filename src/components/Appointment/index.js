@@ -25,11 +25,9 @@ export default function Appointment(props) {
         <Show
           student={props.interview.student}
           interviewer={props.interview.interviewer}
-          onDelete={() => transition("DELETE")}
-          onEdit={() => transition("EDIT")}
         />
       )}
-      {mode === CREATE && <Form interviewers={[]} onCancel={back} />}
+      {mode === CREATE && <Form interviewers={props.interviewers} onCancel={back} />}
       {/* {props.interview ? <Show student={props.interview.student} interviewer={props.interview.interviewer} /> : <Empty />} */}
     </article>
   );
