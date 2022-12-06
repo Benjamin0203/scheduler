@@ -14,7 +14,8 @@ export default function Application(props) {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
-    appointments: {}
+    appointments: {},
+    interviewers: {}
   })
 
   //Get the appointment data for the selected day
@@ -25,10 +26,12 @@ export default function Application(props) {
   We don't want to make the request every time the component renders. Instead, we need to remove the dependency. We do that by passing a function to setState.
   */
   const setDay = day => setState(prev => ({ ...prev, day }));
-  // const setDays = days => setState(prev => ({ ...prev, days }));
+
   
   //test
-  console.log(state.interviewers);
+  // console.log(state.interviewers);
+
+
 
   useEffect(() => {
     const promise1 = axios.get("/api/days");
@@ -49,6 +52,41 @@ export default function Application(props) {
   //   console.log(response);
   //   // setDays([...response.data])
   // })
+
+    //change the local state when we book an interview
+    function bookInterview(id, interview) {
+      console.log(id, interview);
+      const appointment = {
+        ...state.appointments[id],
+        interview: { ...interview }
+      };  
+      const appointments = {
+        ...state.appointments,
+        [id]: appointment
+      };
+      setState({
+        ...state,
+        appointments
+      });
+      return axios.put(`/api/appointments/${id}`, {interview})
+    }
+
+    //change the local state when we cancel an interview
+    function cancelInterview(id) {
+      const appointment = {
+        ...state.appointments[id],
+        interview: null
+      };
+      const appointments = {
+        ...state.appointments,
+        [id]: appointment
+      };
+      setState({
+        ...state,
+        appointments
+      });
+      return axios.delete(`/api/appointments/${id}`)
+    }
 
   return (
     <main className="layout">
@@ -81,6 +119,8 @@ export default function Application(props) {
                 time={appointment.time}
                 interview={interview}
                 interviewers={getInterviewersForDay(state, state.day)}
+                bookInterview={(id, interview) => bookInterview(id, interview)}
+                cancelInterview={(id) => cancelInterview(id)}
               />
             );
             //----------------------------
