@@ -36,18 +36,28 @@ export default function useApplicationData() {
     )
   }, []);
 
-//---------1----------------
-function findDay(day) {
-  const daysOfWeek = {
-    Monday: 0,
-    Tuesday: 1,
-    Wednesday: 2,
-    Thursday: 3,
-    Friday: 4
+  const getSpots = (state, newAppointements) => {
+    const dayIndex = state.days.findIndex(day => day.name === state.day);
+    const currentDay = state.days[dayIndex];
+    const listOfAppointmentIds = currentDay.appointments;
+  
+    const listOfFreeAppointments = listOfAppointmentIds.filter(id => !newAppointements[id].interview);
+  
+    const spots = listOfFreeAppointments.length;
+    return [dayIndex, spots];
   }
-  return daysOfWeek[day]
-}
-//---------1----------------
+
+
+
+  const updateSpots = function() {
+    axios.get('/api/days')
+      .then((res) => {
+        
+        setState(prev => ({...prev, days: res.data}))
+     
+      })
+  }
+
 
 
   //change the local state when we book an interview
@@ -65,29 +75,7 @@ function findDay(day) {
       [id]: appointment
     };
 
-    //------2--------
-    const dayOfWeek = findDay(state.day)
 
-    let day = {
-      ...state.days[dayOfWeek],
-      spots: state.days[dayOfWeek]
-    }
-
-    if (!state.appointments[id].interview) {
-      day = {
-        ...state.days[dayOfWeek],
-        spots: state.days[dayOfWeek].spots - 1
-      } 
-    } else {
-      day = {
-        ...state.days[dayOfWeek],
-        spots: state.days[dayOfWeek].spots
-      } 
-    }
-
-    let days = state.days
-    days[dayOfWeek] = day;
-    //---2-----------------
 
     // setState({
     //   ...state,
@@ -95,11 +83,13 @@ function findDay(day) {
     // });
     return axios.put(`/api/appointments/${id}`, { interview })
     .then(res => {
+      
       setState({
         ...state,
         appointments,
-        days
         })
+        const [today, spots] = getSpots(state, appointments); const day = {...state.days[today], spots:spots}; const days = [...state.days]; days.splice(today, 1, day);
+        updateSpots();
     })
   }
 
@@ -118,23 +108,13 @@ function findDay(day) {
         [id]: appointment
       };
 
-      //------3--------
-      const dayOfWeek = findDay(state.day)
-
-    const day = {
-      ...state.days[dayOfWeek],
-      spots: state.days[dayOfWeek].spots + 1
-    }
-
-    let days = state.days
-    days[dayOfWeek] = day;
-    //---3-----------------
-
       setState({
         ...state,
         appointments,
-        days
       });
+      
+      const [today, spots] = getSpots(state, appointments); const day = {...state.days[today], spots:spots}; const days = [...state.days]; days.splice(today, 1, day);
+      updateSpots();
     })
   }
 
