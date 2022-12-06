@@ -2,6 +2,8 @@ import {useState} from 'react';
 export default function useVisualMode(initial) {
   const [mode, setMode] = useState(initial);
   const [history, setHistory] = useState([initial]);
+//Test
+// console.log("mode", mode, "history", history);
 
   function transition (newMode, replace = false) {
     if (replace) {
