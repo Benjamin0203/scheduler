@@ -24,6 +24,24 @@ export default function Application(props) {
 //-----------------START-----------------
  
 //-----------------END-----------------
+
+    //Map over the appointment data and return an Appointment component for each appointment
+    const appointments = dailyAppointments.map((appointment) => {
+      //refactor the codes to reduce the duplication of data
+      const interview = getInterview(state, appointment.interview);
+      return (
+        <Appointment
+          key={appointment.id}
+          id={appointment.id}
+          time={appointment.time}
+          interview={interview}
+          interviewers={getInterviewersForDay(state, state.day)}
+          bookInterview={(id, interview) => bookInterview(id, interview)}
+          cancelInterview={(id) => cancelInterview(id)}
+        />
+      );
+    })
+
   return (
     <main className="layout">
       <section className="sidebar">
@@ -45,24 +63,7 @@ export default function Application(props) {
         />
       </section>
       <section className="schedule">
-        {dailyAppointments.map((appointment) => {
-          //refactor the codes to reduce the duplication of data
-          const interview = getInterview(state, appointment.interview);
-          return (
-            <Appointment
-              key={appointment.id}
-              id={appointment.id}
-              time={appointment.time}
-              interview={interview}
-              interviewers={getInterviewersForDay(state, state.day)}
-              bookInterview={(id, interview) => bookInterview(id, interview)}
-              cancelInterview={(id) => cancelInterview(id)}
-            />
-          );
-          //----------------------------
-          //old code:
-          // return <Appointment key={appointment.id} {...appointment} />;
-        })}
+        {appointments}
       </section>
     </main>
   );
