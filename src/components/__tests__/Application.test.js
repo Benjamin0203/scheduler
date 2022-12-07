@@ -10,8 +10,16 @@ afterEach(cleanup);
 
 describe("Application", () => {
 
-  it("renders without crashing", () => {
-    render(<Application />);
+  it("defaults to Monday and changes the schedule when a new day is selected", () => {
+    const { getByText } = render(<Application />);
+    const waitForElement = require("@testing-library/react").waitForElement;
+    const fireEvent = require("@testing-library/react").fireEvent;
+
+    return waitForElement(() => getByText("Monday")).then(() => {
+      fireEvent.click(getByText("Tuesday"));
+      expect(getByText("Leopold Silvers")).toBeInTheDocument();
+    });
+  
   });
 
   it("Tests a mock function", () => {
