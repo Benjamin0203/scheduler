@@ -52,12 +52,9 @@ export default function useApplicationData() {
   const updateSpots = function() {
     axios.get('/api/days')
       .then((res) => {
-        
         setState(prev => ({...prev, days: res.data}))
-     
       })
   }
-
 
 
   //change the local state when we book an interview
@@ -88,7 +85,14 @@ export default function useApplicationData() {
         ...state,
         appointments,
         })
-        const [today, spots] = getSpots(state, appointments); const day = {...state.days[today], spots:spots}; const days = [...state.days]; days.splice(today, 1, day);
+        
+        const [today, spots] = getSpots(state, appointments); 
+        const day = {...state.days[today], spots:spots}; 
+        const days = [...state.days]; days.splice(today, 1, day);
+
+        //Test
+        console.log('Add spots: ', spots);
+
         updateSpots();
     })
   }
@@ -112,8 +116,14 @@ export default function useApplicationData() {
         ...state,
         appointments,
       });
-      
-      const [today, spots] = getSpots(state, appointments); const day = {...state.days[today], spots:spots}; const days = [...state.days]; days.splice(today, 1, day);
+
+      const [today, spots] = getSpots(state, appointments); 
+      const day = {...state.days[today], spots:spots}; 
+      const days = [...state.days]; days.splice(today, 1, day);
+
+      //Test
+      console.log('Cancel Spots: ', spots);
+
       updateSpots();
     })
   }
