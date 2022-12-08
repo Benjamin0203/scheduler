@@ -1,6 +1,4 @@
-// import React, { useState, useEffect } from "react";
 
-// import axios from "axios";
 import React from "react";
 
 import "components/Application.scss";
@@ -22,9 +20,6 @@ export default function Application(props) {
     //Get the appointment data for the selected day
     const dailyAppointments = getAppointmentsForDay(state, state.day);
 
-//-----------------START-----------------
- 
-//-----------------END-----------------
 
     //Map over the appointment data and return an Appointment component for each appointment
     const appointments = dailyAppointments.map((appointment) => {

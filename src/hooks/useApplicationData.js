@@ -84,7 +84,7 @@ export default function useApplicationData() {
         const days = [...state.days]; days.splice(today, 1, day);
 
         //Test
-        console.log('Add spots: ', spots);
+        // console.log('Add spots: ', spots);
 
         updateSpots();
       })
@@ -116,7 +116,7 @@ export default function useApplicationData() {
       const days = [...state.days]; days.splice(today, 1, day);
 
       //Test
-      console.log('Cancel Spots: ', spots);
+      // console.log('Cancel Spots: ', spots);
 
       updateSpots();
     })
