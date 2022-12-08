@@ -1,16 +1,10 @@
 import React from "react";
+import axios from "axios";
 
-import { render, cleanup, getAllByPlaceholderText } from "@testing-library/react";
+
+import { render, cleanup, waitForElement, fireEvent, getByAltText, getByText, getAllByTestId, getByPlaceholderText, queryByText, queryByAltText } from "@testing-library/react";
 
 import Application from "components/Application";
-
-const waitForElement = require("@testing-library/react").waitForElement;
-const fireEvent = require("@testing-library/react").fireEvent;
-const prettyDOM = require("@testing-library/react").prettyDOM;
-const getByAltText = require("@testing-library/react").getByAltText;
-const getByText = require("@testing-library/react").getByText;
-const getAllByTestId = require("@testing-library/react").getAllByTestId;
-const getByPlaceholderText = require("@testing-library/react").getByPlaceholderText;
 
 afterEach(cleanup);
 
@@ -37,19 +31,9 @@ describe("Application", () => {
     expect(getByText("Leopold Silvers")).toBeInTheDocument();
   });
 
-  it("Tests a mock function", () => {
-    // test code here...
-    const fn = jest.fn((a, b) => 42);
-    fn(1, 2);
-    expect(fn).toHaveBeenCalledTimes(1);
-    expect(fn).toHaveReturnedWith(42);
-  });
+  
 
-  test.skip("does something it is supposed to do", () => {
-    // test code here...
-  });
-
-  //Test 1: Check if the application loads data, books an interview and reduces the spots remaining for Monday by 1
+  //Test ONE: Check if the application loads data, books an interview and reduces the spots remaining for Monday by 1
   it("loads data, books an interview and reduces the spots remaining for the first day by 1", async () => {
     const { container } = render(<Application />);
     
@@ -58,7 +42,18 @@ describe("Application", () => {
     const appointments = getAllByTestId(container, "appointment")
 
     const appointment = appointments[0];
+    
+    //----------check no spots remaining for Monday----------------
 
+    // const day = getAllByTestId(container, "day").find(day =>
+    //   queryByText(day, "Monday")
+    // );
+
+    // // console.log(prettyDOM(day));
+
+    // expect(getByText(day, /no spots remaining/i)).toBeInTheDocument();
+
+//--------------------------------------------------------------
 
     fireEvent.click(getByAltText(appointment, "Add"));
 
@@ -70,8 +65,99 @@ describe("Application", () => {
 
     fireEvent.click(getByText(appointment, "Save"));
 
-    console.log(prettyDOM(appointment));
+    // console.log(prettyDOM(appointment));
   
   });
 
+  //Test TWO: Check if the application loads data, cancels an interview and increases the spots remaining for Monday by 1
+  it("loads data, cancels an interview and increases the spots remaining for Monday by 1", async () => {
+    // 1. Render the Application.
+    const { container } = render(<Application />);
+  
+    // 2. Wait until the text "Archie Cohen" is displayed.
+    await waitForElement(() => getByText(container, "Archie Cohen"));
+  
+    // 3. Click the "Delete" button on the booked appointment.
+    const appointment = getAllByTestId(container, "appointment").find(
+      appointment => queryByText(appointment, "Archie Cohen")
+    );
+  
+    fireEvent.click(queryByAltText(appointment, "Delete"));
+  
+    // 4. Check that the confirmation message is shown.
+    expect(
+      getByText(appointment, "Are you sure you want to delete?")
+    ).toBeInTheDocument();
+  
+    // 5. Click the "Confirm" button on the confirmation.
+    fireEvent.click(queryByText(appointment, "Confirm"));
+  
+    // 6. Check that the element with the text "Deleting" is displayed.
+    expect(getByText(appointment, "Deleting")).toBeInTheDocument();
+  
+    // 7. Wait until the element with the "Add" button is displayed.
+    await waitForElement(() => getByAltText(appointment, "Add"));
+  
+    // 8. Check that the DayListItem with the text "Monday" also has the text "2 spots remaining".
+    const day = getAllByTestId(container, "day").find(day =>
+      queryByText(day, "Monday")
+    );
+  
+    expect(getByText(day, "1 spot remaining")).toBeInTheDocument();
+  });
+
+  //Test THREE: Check if the application loads data, edits an interview and keeps the spots remaining for Monday the same
+  it("loads data, edits an interview and keeps the spots remaining for Monday the same", async () => { 
+    // 1. Render the Application.
+    const { container } = render(<Application />);
+  
+    // 2. Wait until the text "Archie Cohen" is displayed.
+    await waitForElement(() => getByText(container, "Archie Cohen"));
+  
+    // 3. Click the "Edit" button on the booked appointment.
+    const appointment = getAllByTestId(container, "appointment").find(
+      appointment => queryByText(appointment, "Archie Cohen")
+    );
+  
+    fireEvent.click(queryByAltText(appointment, "Edit"));
+  
+    // 4. Check that the edit form is shown.
+    expect(
+      getByPlaceholderText(appointment, "Enter Student Name")
+    ).toBeInTheDocument();
+  
+    // 5. Change the name and save.
+    fireEvent.change(getByPlaceholderText(appointment, /enter student name/i), {
+      target: { value: "Lydia Miller-Jones" }
+    });
+  
+    fireEvent.click(getByText(appointment, "Save"));
+  
+    // 6. Check that the element with the text "Saving" is displayed.
+    expect(getByText(appointment, "Saving")).toBeInTheDocument();
+  
+    // 7. Wait until the element with the "Archie Cohen" is displayed.
+    await waitForElement(() => getByText(appointment, "Lydia Miller-Jones"));
+  
+    // 8. Check that the DayListItem with the text "Monday" also has the text "1 spot remaining".
+    const day = getAllByTestId(container, "day").find(day =>
+      queryByText(day, "Monday")
+    );
+  
+    expect(getByText(day, "1 spot remaining")).toBeInTheDocument();
+  });
+
+  //Test FOUR: Check if the application shows the save error when failing to save an appointment
+  it("shows the save error when failing to save an appointment", () => {
+    
+    axios.put.mockRejectedValueOnce();
+
+  });
+
+  //Test FIVE: Check if the application shows the delete error when failing to delete an existing appointment
+  it("shows the delete error when failing to delete an existing appointment", () => {
+      
+      axios.delete.mockRejectedValueOnce();
+  });
+  
 });

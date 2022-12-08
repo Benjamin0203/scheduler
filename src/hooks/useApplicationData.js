@@ -40,28 +40,27 @@ export default function useApplicationData() {
     const dayIndex = state.days.findIndex(day => day.name === state.day);
     const currentDay = state.days[dayIndex];
     const listOfAppointmentIds = currentDay.appointments;
-  
+
     const listOfFreeAppointments = listOfAppointmentIds.filter(id => !newAppointements[id].interview);
-  
+
     const spots = listOfFreeAppointments.length;
     return [dayIndex, spots];
   }
 
 
 
-  const updateSpots = function() {
+  const updateSpots = function () {
     axios.get('/api/days')
       .then((res) => {
-        setState(prev => ({...prev, days: res.data}))
+        setState(prev => ({ ...prev, days: res.data }))
       })
   }
 
 
   //change the local state when we book an interview
   function bookInterview(id, interview) {
- 
-  
-    
+
+
     // console.log(id, interview);
     const appointment = {
       ...state.appointments[id],
@@ -72,53 +71,48 @@ export default function useApplicationData() {
       [id]: appointment
     };
 
-
-
-    // setState({
-    //   ...state,
-    //   appointments
-    // });
     return axios.put(`/api/appointments/${id}`, { interview })
-    .then(res => {
-      
-      setState({
-        ...state,
-        appointments,
+      .then(res => {
+
+        setState({
+          ...state,
+          appointments,
         })
-        
-        const [today, spots] = getSpots(state, appointments); 
-        const day = {...state.days[today], spots:spots}; 
+
+        const [today, spots] = getSpots(state, appointments);
+        const day = { ...state.days[today], spots: spots };
         const days = [...state.days]; days.splice(today, 1, day);
 
         //Test
         console.log('Add spots: ', spots);
 
         updateSpots();
-    })
+      })
   }
 
   //change the local state when we cancel an interview
   function cancelInterview(id) {
+    const appointment = {
+      ...state.appointments[id],
+      interview: null
+    };
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+
     return axios.delete(`/api/appointments/${id}`).then((res) => {
       // console.log('in cancelInterview - .then - res', res)
-  
-  
-      const appointment = {
-        ...state.appointments[id],
-        interview: null
-      };
-      const appointments = {
-        ...state.appointments,
-        [id]: appointment
-      };
+
+
 
       setState({
         ...state,
         appointments,
       });
 
-      const [today, spots] = getSpots(state, appointments); 
-      const day = {...state.days[today], spots:spots}; 
+      const [today, spots] = getSpots(state, appointments);
+      const day = { ...state.days[today], spots: spots };
       const days = [...state.days]; days.splice(today, 1, day);
 
       //Test
